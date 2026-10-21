@@ -1,0 +1,18 @@
+# Local PostgreSQL 16 for development.  Start:  docker compose up -d
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sealedpaper
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # creates the second database used by the automated tests
+      - ./server/sql/create-test-db.sql:/docker-entrypoint-initdb.d/create-test-db.sql:ro
+
+volumes:
+  pgdata:

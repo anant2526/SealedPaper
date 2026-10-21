@@ -1,0 +1,28 @@
+# Render blueprint for the API + release worker (one web service).
+# In Render: New > Blueprint > pick this repo. Then fill the secret values in the dashboard.
+services:
+  - type: web
+    name: sealedpaper-api
+    runtime: node
+    rootDir: server
+    plan: free
+    buildCommand: npm ci && npm run migrate
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22.12.0"
+      - key: DATABASE_URL
+        sync: false          # paste your Neon / Supabase connection string
+      - key: DATABASE_SSL
+        value: "true"
+      - key: MASTER_KEY
+        sync: false          # npm run keygen
+      - key: JWT_SECRET
+        sync: false          # npm run keygen
+      - key: FACE_MODE
+        value: real
+      - key: TRUST_PROXY
+        value: "2"           # Vercel proxy -> Render proxy -> API

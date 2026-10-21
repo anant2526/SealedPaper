@@ -1,0 +1,40 @@
+{
+  "name": "sealedpaper-server",
+  "version": "1.0.0",
+  "description": "SealedPaper API: encrypted documents, k-of-N key files, rotating codes and face verification",
+  "type": "module",
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=22.9"
+  },
+  "scripts": {
+    "dev": "node --watch --env-file-if-exists=.env src/index.js",
+    "start": "node --env-file-if-exists=.env src/index.js",
+    "migrate": "node --env-file-if-exists=.env scripts/migrate.js",
+    "keygen": "node scripts/keygen.js",
+    "test": "node --env-file-if-exists=.env.test --test --test-concurrency=1 \"test/*.test.js\"",
+    "viva:sql": "node --env-file-if-exists=.env scripts/run-sql.js sql/viva_checks.sql"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs": "4.22.0",
+    "@tensorflow/tfjs-backend-wasm": "4.22.0",
+    "@vladmandic/face-api": "1.7.15",
+    "argon2": "^0.45.1",
+    "cookie-parser": "^1.4.7",
+    "express": "^4.22.3",
+    "express-rate-limit": "^8.7.1",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.4.0",
+    "node-cron": "^4.6.0",
+    "otplib": "^12.0.1",
+    "pg": "^8.23.1",
+    "qrcode": "^1.5.4",
+    "shamir-secret-sharing": "^0.0.4",
+    "sharp": "^0.35.5",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "supertest": "^7.3.1"
+  }
+}

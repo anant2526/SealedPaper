@@ -1,0 +1,6 @@
+node_modules/
+.env
+.next/
+web/public/models/
+web/public/tfjs/
+*.log
