@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
+import { homeFor } from '@/lib/roles';
 
 const AuthContext = createContext(null);
 
@@ -51,7 +52,7 @@ export function useRequireAuth(roles) {
   useEffect(() => {
     if (auth.loading) return;
     if (!auth.user) router.replace('/login');
-    else if (!allowed) router.replace('/dashboard');
+    else if (!allowed) router.replace(homeFor(auth.user.role));
   }, [auth.loading, auth.user, allowed, router]);
   return { ...auth, ready: !auth.loading && allowed };
 }

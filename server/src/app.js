@@ -8,6 +8,9 @@ import authRoutes from './routes/auth.js';
 import documentRoutes from './routes/documents.js';
 import userRoutes from './routes/users.js';
 import auditRoutes from './routes/audit.js';
+import paperRoutes from './routes/papers.js';
+import centreRoutes from './routes/centres.js';
+import leakRoutes from './routes/leaks.js';
 
 export function createApp() {
   const app = express();
@@ -28,6 +31,9 @@ export function createApp() {
   app.use('/api/documents', documentRoutes);
   app.use('/api/users', userRoutes);
   app.use('/api/audit', auditRoutes);
+  app.use('/api/papers', paperRoutes);
+  app.use('/api/centres', centreRoutes);
+  app.use('/api/leaks', leakRoutes);
 
   app.use('/api', (_req, res) => res.status(404).json({ error: 'Not found' }));
 

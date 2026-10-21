@@ -1,0 +1,110 @@
+[
+  {
+    "topic": "Arrays",
+    "difficulty": "easy",
+    "text": "What is the time complexity of accessing an array element by its index?",
+    "options": [
+      "O(n)",
+      "O(log n)",
+      "O(1)",
+      "O(n log n)"
+    ],
+    "answer": 2
+  },
+  {
+    "topic": "Arrays",
+    "difficulty": "easy",
+    "text": "Which operation on a dynamic array takes amortised constant time?",
+    "options": [
+      "Inserting at the front",
+      "Appending at the end",
+      "Deleting from the middle",
+      "Searching for a value"
+    ],
+    "answer": 1
+  },
+  {
+    "topic": "Arrays",
+    "difficulty": "easy",
+    "text": "An array holds 10 integers of 4 bytes each. How many bytes does it occupy?",
+    "options": [
+      "10 bytes",
+      "14 bytes",
+      "400 bytes",
+      "40 bytes"
+    ],
+    "answer": 3
+  },
+  {
+    "topic": "Arrays",
+    "difficulty": "easy",
+    "text": "Which technique finds a pair with a given sum in a sorted array in linear time?",
+    "options": [
+      "Two pointers",
+      "Binary search for every element",
+      "Checking every pair",
+      "Bubble sort first"
+    ],
+    "answer": 0
+  },
+  {
+    "topic": "Trees",
+    "difficulty": "medium",
+    "text": "In an AVL tree, what is the largest balance factor allowed at any node?",
+    "options": [
+      "1",
+      "2",
+      "0",
+      "3"
+    ],
+    "answer": 0
+  },
+  {
+    "topic": "Trees",
+    "difficulty": "medium",
+    "text": "Which traversal of a binary search tree visits the keys in sorted order?",
+    "options": [
+      "Inorder",
+      "Preorder",
+      "Postorder",
+      "Level order"
+    ],
+    "answer": 0
+  },
+  {
+    "topic": "Trees",
+    "difficulty": "medium",
+    "text": "What is the height of a complete binary tree with 15 nodes, counting edges?",
+    "options": [
+      "4",
+      "15",
+      "3",
+      "7"
+    ],
+    "answer": 2
+  },
+  {
+    "topic": "Graphs",
+    "difficulty": "hard",
+    "text": "Which algorithm finds shortest paths from one source when edge weights can be negative?",
+    "options": [
+      "Bellman-Ford",
+      "Dijkstra",
+      "Prim",
+      "Kruskal"
+    ],
+    "answer": 0
+  },
+  {
+    "topic": "Graphs",
+    "difficulty": "hard",
+    "text": "What is the time complexity of a breadth-first search on a graph stored as adjacency lists?",
+    "options": [
+      "O(V squared)",
+      "O(V + E)",
+      "O(E log V)",
+      "O(V times E)"
+    ],
+    "answer": 1
+  }
+]

@@ -43,6 +43,8 @@ export const config = {
   appName: process.env.APP_NAME || 'SealedPaper',
   runWorker: process.env.RUN_WORKER !== 'false',
   trustProxy: number('TRUST_PROXY', 1),
+  // a paper can only be sealed if its unlock time is at least this far away
+  minSealLeadSeconds: number('MIN_SEAL_LEAD_SECONDS', 60),
 
   face: {
     mode: faceMode,

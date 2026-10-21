@@ -7,16 +7,19 @@
 //   3. Decrypt once to prove it: the AES-GCM auth tag fails on a wrong key.
 //   4. finalize_release() flips the status (trigger re-checks time lock + quorum),
 //      writes the release row, deletes the pending shares and writes the audit row.
+//   5. For an exam paper: draw the final questions and build one variant per centre,
+//      in the SAME transaction, so a paper is never released without its variants.
 import { withTx } from '../db.js';
 import { unwrap, wrap, decrypt } from './crypto.js';
 import { combineShares } from './shamir.js';
 import { audit } from './audit.js';
+import { assemblePaper } from './papers.js';
 
 /** Returns { released: true } if this call released the document, else { released: false, reason }. */
 export async function tryRelease(documentId, { triggeredBy, actorId = null }) {
   return withTx(async (db) => {
     const { rows: [doc] } = await db.query(
-      `SELECT id, status, threshold_k, unlock_at, now() >= unlock_at AS time_ok
+      `SELECT id, status, threshold_k, unlock_at, paper_id, now() >= unlock_at AS time_ok
          FROM documents WHERE id = $1 FOR UPDATE`,
       [documentId],
     );
@@ -48,6 +51,7 @@ export async function tryRelease(documentId, { triggeredBy, actorId = null }) {
       documentId, wrap(key), pending.map((p) => p.custodian_id), triggeredBy, actorId,
     ]);
     key.fill(0);
-    return { released: true };
+    if (doc.paper_id) await assemblePaper(db, doc.paper_id, actorId);
+    return { released: true, paperId: doc.paper_id };
   });
 }

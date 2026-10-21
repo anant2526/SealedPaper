@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
+import { homeFor } from '@/lib/roles';
 import { useAuth } from './AuthProvider';
 import FaceScan from './FaceScan';
 import TotpSetup from './TotpSetup';
@@ -32,7 +33,7 @@ export default function Enrollment({ step, onStep }) {
       <TotpSetup
         onDone={(user) => {
           setUser(user);
-          router.replace('/dashboard');
+          router.replace(homeFor(user.role));
         }}
       />
     </>

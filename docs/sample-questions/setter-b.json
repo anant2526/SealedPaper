@@ -1,0 +1,98 @@
+[
+  {
+    "topic": "Arrays",
+    "difficulty": "easy",
+    "text": "What can a prefix sum array answer in constant time after it is built?",
+    "options": [
+      "The sum of any subarray",
+      "The largest element",
+      "The sorted order",
+      "The median"
+    ],
+    "answer": 0
+  },
+  {
+    "topic": "Arrays",
+    "difficulty": "easy",
+    "text": "Rotating an array of n elements by k places in place needs how much extra memory with the reversal method?",
+    "options": [
+      "O(1)",
+      "O(n)",
+      "O(k)",
+      "O(n log n)"
+    ],
+    "answer": 0
+  },
+  {
+    "topic": "Arrays",
+    "difficulty": "easy",
+    "text": "Which search works on a sorted array in logarithmic time?",
+    "options": [
+      "Linear search",
+      "Depth-first search",
+      "Hashing",
+      "Binary search"
+    ],
+    "answer": 3
+  },
+  {
+    "topic": "Trees",
+    "difficulty": "medium",
+    "text": "How many children can a node in a binary tree have at most?",
+    "options": [
+      "One",
+      "Three",
+      "Any number",
+      "Two"
+    ],
+    "answer": 3
+  },
+  {
+    "topic": "Trees",
+    "difficulty": "medium",
+    "text": "Which data structure is usually used to implement a priority queue?",
+    "options": [
+      "Binary heap",
+      "Stack",
+      "Linked list",
+      "Hash table"
+    ],
+    "answer": 0
+  },
+  {
+    "topic": "Trees",
+    "difficulty": "medium",
+    "text": "Deleting a node with two children from a BST replaces it with which node?",
+    "options": [
+      "Its parent",
+      "Its inorder successor",
+      "Its left child always",
+      "The root"
+    ],
+    "answer": 1
+  },
+  {
+    "topic": "Graphs",
+    "difficulty": "hard",
+    "text": "Which algorithm detects a cycle and gives a topological order of a directed graph?",
+    "options": [
+      "Kahn's algorithm",
+      "Prim's algorithm",
+      "Floyd-Warshall",
+      "Binary search"
+    ],
+    "answer": 0
+  },
+  {
+    "topic": "Graphs",
+    "difficulty": "hard",
+    "text": "A minimum spanning tree of a connected graph with V vertices has how many edges?",
+    "options": [
+      "V",
+      "E - 1",
+      "2V",
+      "V - 1"
+    ],
+    "answer": 3
+  }
+]

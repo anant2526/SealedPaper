@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
+import { homeFor } from '@/lib/roles';
 import QuorumSeal from '@/components/QuorumSeal';
 
 const FACTORS = [
@@ -16,7 +17,7 @@ export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
   useEffect(() => {
-    if (!loading && user) router.replace('/dashboard');
+    if (!loading && user) router.replace(homeFor(user.role));
   }, [loading, user, router]);
 
   return (

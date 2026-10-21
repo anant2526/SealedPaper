@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { api, saveJson, formatBytes, formatDateTime } from '@/lib/api';
@@ -160,7 +161,18 @@ export default function DocumentPage() {
   const timeLeft = new Date(doc.unlock_at).getTime() - serverNow;
 
   let yourPart;
-  if (released) {
+  if (released && doc.paper_id) {
+    yourPart = (
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold">The paper is open</h2>
+        <p className="text-[15px] text-ink-soft">
+          The final questions were drawn from the pool and every centre received its own order. Superintendents print their
+          numbered copies from the paper page.
+        </p>
+        <Link className="btn-primary" href={`/papers/${doc.paper_id}`}>Open the paper page</Link>
+      </div>
+    );
+  } else if (released) {
     yourPart = (
       <div className="space-y-4">
         <h2 className="text-xl font-bold">The paper is open</h2>
@@ -243,6 +255,12 @@ export default function DocumentPage() {
 
       <div className="min-w-0 space-y-8">
         <h1 className="text-3xl font-bold tracking-tight">{doc.title}</h1>
+        {doc.paper_id && (
+          <p className="-mt-6 text-[15px] text-ink-soft">
+            This key quorum guards an exam paper built from a question pool.{' '}
+            <Link href={`/papers/${doc.paper_id}`} className="underline">See the paper</Link>
+          </p>
+        )}
         <section className="panel p-6">{yourPart}</section>
 
         <section>

@@ -155,7 +155,7 @@ router.get('/:id', requireAuth(), async (req, res, next) => {
     );
     const { rows: [lock] } = await query('SELECT custodian_locked_out($1, $2, $3) AS locked', [id, req.user.id, config.lockout.maxFailures]);
     res.json({
-      document: { ...(await statusOf(id)), original_name: a.doc.original_name, mime_type: a.doc.mime_type, size_bytes: a.doc.size_bytes, created_at: a.doc.created_at },
+      document: { ...(await statusOf(id)), paper_id: a.doc.paper_id, original_name: a.doc.original_name, mime_type: a.doc.mime_type, size_bytes: a.doc.size_bytes, created_at: a.doc.created_at },
       custodians,
       recipients,
       me: {
@@ -305,6 +305,7 @@ router.get('/:id/download', requireAuth(), async (req, res, next) => {
     const id = parse(z.uuid(), req.params.id);
     const a = await access(id, req.user);
     if (a.doc.status !== 'released') throw new HttpError(423, 'This document is still sealed');
+    if (a.doc.paper_id) throw new HttpError(409, 'This is an exam paper. Open it from the paper page; centres print their own copies.');
 
     const { file, release } = await withTx(async (db) => {
       await db.query('INSERT INTO downloads (document_id, user_id, ip) VALUES ($1, $2, $3)', [id, req.user.id, clientIp(req)]);

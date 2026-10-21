@@ -4,37 +4,25 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from './AuthProvider';
 import { SealMark } from './QuorumSeal';
+import { roleName, homeFor, navFor } from '@/lib/roles';
 
-const ROLE_NAMES = {
-  admin: 'Exam controller',
-  setter: 'Paper setter',
-  custodian: 'Key custodian',
-  superintendent: 'Centre superintendent',
-  investigator: 'Investigator',
-};
-export const roleName = (r) => ROLE_NAMES[r] || r;
+export { roleName };
 
 export default function Header() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
 
-  const links = user
-    ? [
-        { href: '/dashboard', label: 'Documents' },
-        ...(user.role === 'admin' ? [{ href: '/admin/users', label: 'People' }] : []),
-        ...(['admin', 'investigator'].includes(user.role) ? [{ href: '/audit', label: 'Audit log' }] : []),
-      ]
-    : [];
+  const links = user ? navFor(user.role) : [];
 
   return (
     <header className="guilloche text-paper">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-8 gap-y-3 px-4 py-4 sm:px-6">
-        <Link href={user ? '/dashboard' : '/'} className="flex items-center gap-2.5 text-lg font-bold tracking-tight">
+        <Link href={user ? homeFor(user.role) : '/'} className="flex items-center gap-2.5 text-lg font-bold tracking-tight">
           <SealMark className="h-7 w-7" />
           SealedPaper
         </Link>
-        <nav className="flex gap-1 text-[15px]">
+        <nav className="flex flex-wrap gap-1 text-[15px]">
           {links.map((l) => (
             <Link
               key={l.href}

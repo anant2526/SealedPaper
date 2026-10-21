@@ -37,12 +37,14 @@ export default function Dashboard() {
     <div>
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Documents</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{isAdmin ? 'Key vault' : 'My keys'}</h1>
           <p className="mt-1 text-ink-soft">
-            {isAdmin ? 'Every sealed and released document.' : 'Documents where you hold a key or may download the paper.'}
+            {isAdmin
+              ? 'Every exam paper and uploaded document that is locked behind a key quorum.'
+              : 'Exam papers and documents where you hold a key file or may download the result.'}
           </p>
         </div>
-        {isAdmin && <Link href="/documents/new" className="btn-wax">Seal a new document</Link>}
+        {isAdmin && <Link href="/documents/new" className="btn-quiet">Seal an uploaded file</Link>}
       </div>
 
       {error && <p role="alert" className="text-wax">{error}</p>}
@@ -65,6 +67,7 @@ export default function Dashboard() {
                 <QuorumSeal total={d.total_shares_n} threshold={d.threshold_k} submitted={d.keys_submitted} released={d.status === 'released'} size={56} label={false} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-lg font-semibold">{d.title}</p>
+                  {!d.paper_id && <p className="text-sm text-ink-soft">Uploaded file</p>}
                   <p className="text-[15px] text-ink-soft">
                     {d.status === 'released' ? `Released ${formatDateTime(d.released_at)}` : `Unlocks ${formatDateTime(d.unlock_at)}`}
                     {', '}

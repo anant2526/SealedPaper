@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
+import { homeFor } from '@/lib/roles';
 import { useAuth } from '@/components/AuthProvider';
 import Steps from '@/components/Steps';
 import FaceScan from '@/components/FaceScan';
@@ -18,7 +19,7 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && user) router.replace('/dashboard');
+    if (!loading && user) router.replace(homeFor(user.role));
   }, [loading, user, router]);
 
   async function submit(e) {
@@ -70,7 +71,7 @@ export default function LoginPage() {
           onFrames={async (challengeId, frames) => {
             const { user } = await api('/auth/login/face', { method: 'POST', body: { challengeId, frames } });
             setUser(user);
-            router.replace('/dashboard');
+            router.replace(homeFor(user.role));
           }}
         />
       )}
