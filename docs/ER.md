@@ -1,5 +1,11 @@
 # SealedPaper ER diagrams
 
+![SealedPaper ER diagram](er-diagram.svg)
+
+Generated from the live schema by `server/scripts/er-diagram.py` (Graphviz). Crow's foot = many, bar = one, circle = optional. A PNG copy is in `er-diagram.png`.
+
+The Mermaid views below show the same model split into four parts.
+
 29 tables in four views. PK = primary key, FK = foreign key, UK = unique. `||--o{` = one to many, `||--||` = one to one, `|o--o{` = optional one to many.
 
 ## 1. Accounts, face checks and audit
