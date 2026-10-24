@@ -6,6 +6,7 @@ import { api, formatDateTime } from '@/lib/api';
 import { useRequireAuth } from '@/components/AuthProvider';
 import QuorumSeal from '@/components/QuorumSeal';
 import { StatusPill } from '@/components/status';
+import { categoryLabel } from '@/lib/categories';
 
 function myPart(doc) {
   if (doc.i_am_custodian) {
@@ -37,14 +38,14 @@ export default function Dashboard() {
     <div>
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{isAdmin ? 'Key vault' : 'My keys'}</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{isAdmin || user.role === 'investigator' ? 'Confidential documents' : 'My documents and keys'}</h1>
           <p className="mt-1 text-ink-soft">
             {isAdmin
-              ? 'Every exam paper and uploaded document that is locked behind a key quorum.'
-              : 'Exam papers and documents where you hold a key file or may download the result.'}
+              ? 'Research results, financial results, board decks, judgments, tenders and exam papers, each locked behind a key quorum.'
+              : 'Documents where you hold a key file or will receive a traced copy after release.'}
           </p>
         </div>
-        {isAdmin && <Link href="/documents/new" className="btn-quiet">Seal an uploaded file</Link>}
+        {isAdmin && <Link href="/documents/new" className="btn-wax">Seal a confidential document</Link>}
       </div>
 
       {error && <p role="alert" className="text-wax">{error}</p>}
@@ -67,7 +68,7 @@ export default function Dashboard() {
                 <QuorumSeal total={d.total_shares_n} threshold={d.threshold_k} submitted={d.keys_submitted} released={d.status === 'released'} size={56} label={false} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-lg font-semibold">{d.title}</p>
-                  {!d.paper_id && <p className="text-sm text-ink-soft">Uploaded file</p>}
+                  <p className="text-sm font-semibold text-ink-soft">{d.paper_id ? 'Exam paper (question pool)' : categoryLabel(d.category)}</p>
                   <p className="text-[15px] text-ink-soft">
                     {d.status === 'released' ? `Released ${formatDateTime(d.released_at)}` : `Unlocks ${formatDateTime(d.unlock_at)}`}
                     {', '}

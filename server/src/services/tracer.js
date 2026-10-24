@@ -169,3 +169,29 @@ export async function trace(paperId, text) {
   const post = await traceReleased(paperId, text);
   return { phase: 'post_release', hmacMatches, ...post };
 }
+
+/**
+ * Leak of a confidential document: every traced copy carries its code on every page
+ * (footer, watermark and hidden text). Finds the code in the leaked text and names the reader.
+ */
+export async function traceDocument(documentId, text) {
+  const { rows: [d] } = await query('SELECT status FROM documents WHERE id = $1 AND paper_id IS NULL', [documentId]);
+  if (!d) return null;
+  const codes = [...new Set([...String(text).toUpperCase().matchAll(COPY_CODE)].map((m) => m[0]))];
+  let copy = null;
+  if (codes.length) {
+    const { rows } = await query(
+      `SELECT c.id, c.copy_code, c.copy_no, c.issued_at, c.ip, u.id AS reader_id, u.name AS reader_name, u.email AS reader_email
+         FROM document_copies c JOIN users u ON u.id = c.reader_id
+        WHERE c.document_id = $1 AND c.copy_code = ANY($2::text[])`,
+      [documentId, codes],
+    );
+    copy = rows[0] || null;
+  }
+  return {
+    phase: d.status === 'released' ? 'post_release' : 'pre_release',
+    copy,
+    codesFound: codes,
+    confidence: copy ? 1 : 0,
+  };
+}

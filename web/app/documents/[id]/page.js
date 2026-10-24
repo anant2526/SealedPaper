@@ -6,6 +6,8 @@ import { useParams } from 'next/navigation';
 import { api, saveJson, formatBytes, formatDateTime } from '@/lib/api';
 import { useRequireAuth } from '@/components/AuthProvider';
 import QuorumSeal from '@/components/QuorumSeal';
+import TracedCopies from '@/components/TracedCopies';
+import { categoryLabel } from '@/lib/categories';
 import FaceScan from '@/components/FaceScan';
 import { StatusPill, countdown } from '@/components/status';
 
@@ -123,7 +125,7 @@ function SubmitKey({ docId, onDone }) {
 
 export default function DocumentPage() {
   const { id } = useParams();
-  const { ready } = useRequireAuth();
+  const { user, ready } = useRequireAuth();
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [now, setNow] = useState(() => Date.now());
@@ -173,13 +175,7 @@ export default function DocumentPage() {
       </div>
     );
   } else if (released) {
-    yourPart = (
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold">The paper is open</h2>
-        <p className="text-[15px] text-ink-soft">Every download is recorded in the audit log with your name and IP address.</p>
-        <a className="btn-primary" href={`/api/documents/${doc.document_id}/download`}>Download {doc.original_name}</a>
-      </div>
-    );
+    yourPart = <TracedCopies doc={doc} me={{ ...me, email: user?.email }} />;
   } else if (me.isCustodian && !me.keyPickedUp) {
     yourPart = <CollectKey docId={doc.document_id} onDone={load} />;
   } else if (me.isCustodian && me.keySubmitted) {
@@ -219,7 +215,7 @@ export default function DocumentPage() {
         <p className="mt-2 text-[15px] text-ink-soft">
           {me.isAdmin
             ? `As exam controller you cannot open this paper. It opens only when ${doc.threshold_k} of the ${doc.total_shares_n} custodians submit their keys after the unlock time.`
-            : 'You can download the paper here once it is released.'}
+            : 'You will get your own traced copy here once it is released.'}
         </p>
       </div>
     );
@@ -254,7 +250,11 @@ export default function DocumentPage() {
       </aside>
 
       <div className="min-w-0 space-y-8">
-        <h1 className="text-3xl font-bold tracking-tight">{doc.title}</h1>
+        <div>
+          <p className="text-[15px] font-semibold text-ink-soft">{doc.paper_id ? 'Exam paper (question pool)' : categoryLabel(doc.category)}</p>
+          <h1 className="text-3xl font-bold tracking-tight">{doc.title}</h1>
+          {doc.description && <p className="mt-2 max-w-prose text-[15px] text-ink-soft">{doc.description}</p>}
+        </div>
         {doc.paper_id && (
           <p className="-mt-6 text-[15px] text-ink-soft">
             This key quorum guards an exam paper built from a question pool.{' '}

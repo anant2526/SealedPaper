@@ -218,6 +218,28 @@ SELECT pg_temp.expect_fail('four eyes: nobody approves their own reprint',
 SELECT pg_temp.expect_fail('printed copies are evidence: no deletes',
   $q$DELETE FROM printed_copies WHERE variant_id = '00000000-0000-0000-0000-0000000000a9'$q$);
 
+-- =====================================================================
+-- Confidential documents: traced copies and leak targets
+-- =====================================================================
+SELECT pg_temp.expect_fail('no traced copy of a sealed document',
+  $q$INSERT INTO document_copies (document_id, reader_id, copy_no, copy_code, stamped)
+     VALUES ('00000000-0000-0000-0000-00000000d001', '00000000-0000-0000-0000-0000000000c1', 1, 'DOC-0001-AAAA', true)$q$);
+
+INSERT INTO document_copies (document_id, reader_id, copy_no, copy_code, stamped)
+VALUES ('00000000-0000-0000-0000-00000000d002', '00000000-0000-0000-0000-0000000000c1', 1, 'DOC-0001-BBBB', true),
+       ('00000000-0000-0000-0000-00000000d002', '00000000-0000-0000-0000-0000000000c1', 2, 'DOC-0002-CCCC', true);
+
+SELECT pg_temp.expect_fail('copy limit: a 3rd copy for a reader allowed 2',
+  $q$INSERT INTO document_copies (document_id, reader_id, copy_no, copy_code, stamped)
+     VALUES ('00000000-0000-0000-0000-00000000d002', '00000000-0000-0000-0000-0000000000c1', 3, 'DOC-0003-DDDD', true)$q$);
+
+SELECT pg_temp.expect_fail('issued copies cannot be deleted',
+  $q$DELETE FROM document_copies WHERE copy_code = 'DOC-0001-BBBB'$q$);
+
+SELECT pg_temp.expect_fail('a leak report targets exactly one paper or document',
+  $q$INSERT INTO leak_reports (reported_by, leaked_text, phase)
+     VALUES ('00000000-0000-0000-0000-0000000000a1', 'some leaked text here', 'post_release')$q$);
+
 -- ---------- tamper test: an owner bypasses the trigger and edits one row ----------
 ALTER TABLE audit_log DISABLE TRIGGER audit_no_edit;
 UPDATE audit_log SET payload = '{"edited": true}' WHERE action = 'test.two';

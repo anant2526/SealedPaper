@@ -47,3 +47,15 @@ You can scan your own face for every account; each account stores its own face t
 | 17 | `npm run viva:sql` | 29 PASS rows: every rule above enforced by the database itself. |
 | 18 | **Audit log → Verify the hash chain**. Then as superuser: `ALTER TABLE audit_log DISABLE TRIGGER audit_no_edit; UPDATE audit_log SET payload = '{}' WHERE id = 5; ALTER TABLE audit_log ENABLE TRIGGER audit_no_edit;` and verify again. | The tampered row is flagged by number. |
 | 19 | Finish on the live URL. | Deployed on Vercel + Render + Neon. |
+
+## Beyond exams: a confidential document (about 4 minutes)
+
+Do this right after the exam demo, with the same accounts.
+
+| # | Do | What it proves |
+| --- | --- | --- |
+| 1 | Controller → **Documents → Seal a confidential document**. Kind: **Research and R&D**. Title "Phase III trial results, compound SP-114". Upload a PDF. Unlock time 3 minutes ahead, custodians 1–3 with 2 of 3, one reader, **1 copy per reader**. | The same k-of-N lock works for any file; the kind sets sensible defaults. |
+| 2 | Two custodians collect their key files and submit (code + face). | Same three-factor unlock. |
+| 3 | After the unlock time, the reader clicks **Download my traced copy**. Open the PDF: their name and a code like `RES-0001-62QJ` in every footer and as a watermark. Click again: refused. | Copies are stamped per reader; the copy limit is a database trigger. |
+| 4 | Select all text in the PDF, copy, paste into **Leaks** with this document chosen. | The hidden code survives copy-paste; the tracer names the reader, time and IP. |
+| 5 | Controller opens the document: the copy row now says **Found in a leak**. | Evidence stays linked; issued copies cannot be deleted. |

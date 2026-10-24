@@ -1,16 +1,31 @@
 # SealedPaper
 
-**An exam paper that no single official can open.**
+**Confidential documents that no single person can open early, and every copy traces back to its reader.**
 
-SealedPaper keeps a question paper encrypted from the moment its questions are written until a fixed time before the exam.
+Documents leak before their time: trial results before publication, quarterly results before the stock-exchange filing,
+merger plans, court judgments before pronouncement, tender bids, budget drafts, exam papers.
+SealedPaper encrypts a document the moment it is uploaded and keeps it unreadable until a fixed unlock time.
 Opening it needs **k of N officials together**, each bringing three things:
 
-1. **their key file**: one Shamir share of the paper's key, unique to that paper and that person;
+1. **their key file**: one Shamir share of the document's key, unique to that document and that person;
 2. **the current 6-digit code** from their authenticator app (changes every 30 s, works once);
 3. **their own face** in a live scan: look straight, turn left, turn right, in a random order.
 
-The paper does not even exist until it is opened: setters fill a **question pool**, and the server **draws the final paper at release**.
-Every exam centre then prints its **own shuffled variant** with a **copy code on every page**, so a leaked copy names its centre and its copy.
+After release, every reader gets a **traced copy**: each PDF page is stamped with the reader's name and a unique copy code
+(footer, faint watermark and hidden text), and the database limits how many copies each reader may take.
+A leaked copy, photo or pasted text names the person it was issued to.
+
+| Use case | Example | Typical setting |
+| --- | --- | --- |
+| Research and R&D | Phase III trial results before the journal publishes | 2 of 3 investigators, 1 copy per reader |
+| Financial results | Quarterly results before the stock-exchange filing | 2 of 3 (CFO, CEO, auditor), 1 copy per analyst |
+| Board and M&A | Merger plan, board deck | 3 of 5 directors |
+| Legal and government | Judgment before pronouncement, tender bids before opening, budget drafts | 2 or 3 of N officials |
+| **Exam papers** | Setters fill a question pool; the paper is drawn at release; each centre prints its own shuffled, numbered copies | Full exam pipeline (below) |
+
+Exam papers get the deepest pipeline: the paper does not even exist until it is opened, because setters fill a
+**question pool** and the server **draws the final paper at release**. Every exam centre prints its **own shuffled
+variant** with a **copy code on every page**, so a leaked copy names its centre and its copy.
 
 Screenshots of every screen are in [`docs/screenshots`](docs/screenshots). The step-by-step viva demo is in [`docs/DEMO.md`](docs/DEMO.md).
 
@@ -44,7 +59,14 @@ Every step is written to a **hash-chained, append-only audit log** that the data
 | Centre superintendent | Print their own centre's copies after release, ask for reprints | Print early, print another centre's copy, or go over the print cap |
 | Investigator | Trace leaks, read the audit log, verify the hash chain | Change any record |
 
-An uploaded **file vault** is also included (admin → Vault → "Seal an uploaded file"): the same k-of-N key files, code and face unlock for any finished document.
+## Confidential documents (any file)
+
+| Step | Who | What happens |
+| --- | --- | --- |
+| Seal | Controller | Uploads the file, picks the kind (research, financial, board, legal, government, exam, other), custodians and k, unlock time, readers, and how many copies each reader may take. A fresh key encrypts it; the key is split and forgotten. |
+| Unlock | k custodians | Key file + 6-digit code + live face scan, as for exam papers. |
+| Read | Readers, custodians, controller | Each download is a numbered copy: `RES-0001-62QJ`, `FIN-0003-K7QX`. PDFs are stamped on every page with the reader's name, the code, a watermark and the code as hidden text; other file types are logged under a code. The database refuses copies before release and beyond the per-reader limit. |
+| Trace | Investigator | Pastes the leaked text (or the text of a leaked PDF). The tracer finds the copy code and names the reader, the time and the IP address of that copy. |
 
 ## Tech stack
 
@@ -52,11 +74,11 @@ An uploaded **file vault** is also included (admin → Vault → "Seal an upload
 | --- | --- |
 | Frontend | Next.js 16 (App Router) + Tailwind CSS 4, plain JavaScript |
 | API | Node.js 22 + Express, raw SQL with `pg` (no ORM, so every trigger and lock is visible) |
-| Database | PostgreSQL 16: **28 tables, 20 triggers, 5 stored functions, 7 views**, window functions, DCL |
+| Database | PostgreSQL 16: **29 tables, 23 triggers, 5 stored functions, 8 views**, window functions, DCL |
 | Crypto | Node `crypto` (AES-256-GCM, SHA-256, HMAC, HKDF), `shamir-secret-sharing` (audited), Argon2id passwords |
 | Rotating code | TOTP (RFC 6238) via `otplib`, QR code for Google/Microsoft Authenticator |
 | Face | `@vladmandic/face-api` on the **server** (TensorFlow.js WASM). The browser runs two tiny models only to guide and auto-capture. |
-| PDFs | PDFKit with an embedded Unicode font (DejaVu Sans) |
+| PDFs | PDFKit (exam copies) and pdf-lib (stamping uploaded PDFs per reader), embedded Unicode font (DejaVu Sans) |
 | Jobs | `node-cron` worker in the API: seals papers at the deadline, releases them at unlock time |
 | Tests | Node's built-in test runner + Supertest, plus a SQL rule-check script |
 
@@ -96,8 +118,8 @@ The camera only works on `localhost` or `https`. The first account you register 
 
 ```bash
 cd server
-npm test                                # 23 API tests, ~1 minute
-npm run viva:sql                        # 29 database rule checks, PASS/FAIL table
+npm test                                # 28 API tests, ~1 minute
+npm run viva:sql                        # 33 database rule checks, PASS/FAIL table
 ```
 
 Tests use the `sealedpaper_test` database and `FACE_MODE=mock` (a frame is the string `mock:<person>:<yaw>`, so the real liveness and matching logic runs without a camera).
@@ -106,7 +128,9 @@ Tests use the `sealedpaper_test` database and `FACE_MODE=mock` (a frame is the s
 
 **`test/flow.test.js` and `test/race.test.js`, accounts and the vault:** login needs password and a matching face; wrong person, wrong pose order, no head turn and replayed challenges fail · key files download once · wrong key file, forged share, wrong code and wrong face are rejected · the time lock holds even in SQL · a TOTP code cannot be reused · **5 parallel unlock requests produce exactly one release**.
 
-**`sql/viva_checks.sql`** runs inside a transaction and rolls back. It shows 29 rules the database enforces on its own: k-of-N limits, time lock, quorum, frozen settings, immutable share hashes, composite foreign keys for setters and blueprint cells, duplicate questions, no sealing while the key exists, frozen questions and blueprint, burning still allowed, no release before the quorum, `draw_final_questions()` skipping burned questions, the print cap, four-eyes reprints, undeletable copies, append-only audit, and `verify_audit_chain()` catching an edited row.
+**`sql/viva_checks.sql`** runs inside a transaction and rolls back. It shows 33 rules the database enforces on its own: k-of-N limits, time lock, quorum, frozen settings, immutable share hashes, composite foreign keys for setters and blueprint cells, duplicate questions, no sealing while the key exists, frozen questions and blueprint, burning still allowed, no release before the quorum, `draw_final_questions()` skipping burned questions, the print cap, four-eyes reprints, undeletable copies, append-only audit, no traced copies before release, the per-reader copy limit, undeletable issued copies, one target per leak report, and `verify_audit_chain()` catching an edited row.
+
+**`test/documents.test.js`, confidential documents:** a financial report sealed with a category and copy limit · no copy before release, even in SQL · 2 of 3 executives open it · each download is a stamped PDF with its own code in the metadata and file name · the copy limit holds · a reader sees only their own copies · a leak carrying the code names the reader.
 
 ---
 
@@ -120,8 +144,8 @@ Tests use the `sealedpaper_test` database and `FACE_MODE=mock` (a frame is the s
 | Transactions + row locks | Release: `SELECT … FOR UPDATE` on the document, rebuild key, `finalize_release()`, `draw_final_questions()`, variants: all one transaction. Sealing and printing are transactions too. |
 | Stored functions | `finalize_release()`, `draw_final_questions()` (secure shuffle via `gen_random_bytes`), `verify_audit_chain()`, `custodian_locked_out()`, `audit_row_hash()` |
 | Window functions | `LAG()` in `verify_audit_chain()`; `COUNT(*) OVER (… RANGE '10 minutes' PRECEDING)` in `suspicious_key_attempts`; `row_number() OVER ()` in the draw |
-| Views | `unlock_status`, `pool_coverage`, `centre_readiness`, `suspicious_key_attempts`, `face_failure_report`, `setter_leak_report`, `centre_reprint_rates` |
-| GROUP BY / HAVING, subqueries | `setter_leak_report` (setters with more than one leaked question), `centre_reprint_rates` (centres above the average reprint rate), `face_failure_report` |
+| Views | `unlock_status`, `pool_coverage`, `centre_readiness`, `suspicious_key_attempts`, `face_failure_report`, `setter_leak_report`, `centre_reprint_rates`, `reader_copy_report` |
+| GROUP BY / HAVING, subqueries | `reader_copy_report` (readers whose copies leaked), `setter_leak_report` (setters with more than one leaked question), `centre_reprint_rates` (centres above the average reprint rate), `face_failure_report` |
 | Indexes | Partial indexes `documents(unlock_at) WHERE status='sealed'`, `papers(seal_deadline) WHERE status='draft'`, `questions(…) WHERE status='active'`; `variants(signature)` |
 | DCL | Role `sealedpaper_app` gets INSERT/SELECT only on evidence tables (audit log, copies, leak reports, submissions) |
 
@@ -167,13 +191,13 @@ sealedpaper/
 │   ├── sample-questions/         JSON files for setters to import
 │   └── screenshots/
 ├── server/                       Express API + worker
-│   ├── migrations/               001 tables · 002 triggers · 003 functions/views · 004 DCL · 005 exam papers
-│   ├── sql/viva_checks.sql       29 database rule checks
+│   ├── migrations/               001 tables · 002 triggers · 003 functions/views · 004 DCL · 005 exam papers · 006 confidential documents
+│   ├── sql/viva_checks.sql       33 database rule checks
 │   ├── assets/fonts/             DejaVu Sans for the PDFs
 │   ├── src/routes/               auth, users, documents, papers, centres, leaks, audit
-│   ├── src/services/             crypto, shamir, totp, face, faceCheck, questions, papers, release, pdf, tracer, audit
+│   ├── src/services/             crypto, shamir, totp, face, faceCheck, questions, papers, release, pdf, stamp, tracer, audit
 │   ├── src/worker.js             seals at the deadline, releases at unlock time
-│   └── test/                     exam, flow and race tests
+│   └── test/                     exam, documents, flow and race tests
 └── web/                          Next.js + Tailwind
     ├── app/                      register, login, papers, papers/[id] (+edit, content), centres, leaks, dashboard (vault), documents, admin/users, audit
     └── components/               FaceScan, QuorumSeal, PaperForm, SetterPool, CentrePrint, PaperBits, TotpSetup…
@@ -210,3 +234,4 @@ sealedpaper/
 - **Late assembly reduces setter leaks but does not remove them**: a leaked pool question that is not caught still has a chance of being drawn.
 - **Reworded leaks are not matched** (exact text after normalising). Fuzzy matching such as MinHash is a stretch goal.
 - A lost key file cannot be re-issued; k-of-N tolerates N − k lost files.
+- **Traced copies of uploaded documents rely on the copy code.** Someone who retypes the content, or crops every footer and the watermark, cannot be traced; invisible per-reader wording changes (canary text) are the next step. Non-PDF files are logged under a code but not stamped.

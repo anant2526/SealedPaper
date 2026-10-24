@@ -8,6 +8,31 @@ import { useRequireAuth } from '@/components/AuthProvider';
 import { DIFFICULTY, Table, Td } from '@/components/PaperBits';
 
 function Verdict({ r, matches }) {
+  if (r.document_id) {
+    if (r.reader_name) {
+      return (
+        <>
+          <p className="text-sm font-semibold text-wax">Traced to the reader by the copy code</p>
+          <p className="mt-1 text-2xl font-bold">{r.reader_name}</p>
+          <p className="mt-1 text-[15px]">
+            Copy {r.doc_copy_code} was issued to {r.reader_name} ({r.reader_email}) on {formatDateTime(r.doc_issued_at)}
+            {r.doc_copy_ip ? ` from ${r.doc_copy_ip}` : ''}. Confidence 100%.
+          </p>
+        </>
+      );
+    }
+    return (
+      <>
+        <p className="text-sm font-semibold text-ink-soft">No copy code found</p>
+        <p className="mt-1 text-2xl font-bold">The text does not carry any of this document’s copy codes</p>
+        <p className="mt-1 text-[15px]">
+          {r.document_status === 'released'
+            ? 'Ask for the original file or a full-page photo: the code is in every footer, in the watermark and hidden in the text.'
+            : 'The document is still sealed, so no copies exist yet. The leak came from before upload, or it is fake.'}
+        </p>
+      </>
+    );
+  }
   if (r.copy_code) {
     return (
       <>
@@ -77,12 +102,14 @@ export default function LeakReport() {
         <Link href="/leaks" className="text-[15px] text-ink-soft underline">All leak reports</Link>
         <h1 className="mt-2 text-3xl font-bold tracking-tight">Leak report</h1>
         <p className="mt-1 text-ink-soft">
-          <Link href={`/papers/${r.paper_id}`} className="underline">{r.subject}: {r.title}</Link>, reported {formatDateTime(r.created_at)} by {r.reported_by_name}
-          {r.source && `, found on ${r.source}`}. {r.phase === 'pre_release' ? 'The paper was still sealed.' : 'The paper had been released.'}
+          <Link href={r.paper_id ? `/papers/${r.paper_id}` : `/documents/${r.document_id}`} className="underline">
+            {r.paper_id ? `${r.subject}: ${r.title}` : r.title}
+          </Link>, reported {formatDateTime(r.created_at)} by {r.reported_by_name}
+          {r.source && `, found on ${r.source}`}. {r.phase === 'pre_release' ? 'It was still sealed.' : 'It had been released.'}
         </p>
       </div>
 
-      <section className={`rounded-[10px] border p-6 ${matches.length || r.centre_code ? 'border-wax/40 bg-wax-soft/60' : 'border-line bg-panel'}`}>
+      <section className={`rounded-[10px] border p-6 ${matches.length || r.centre_code || r.reader_name ? 'border-wax/40 bg-wax-soft/60' : 'border-line bg-panel'}`}>
         <Verdict r={r} matches={matches} />
         {canBurn && (
           <button className="btn-wax mt-4" onClick={async () => {

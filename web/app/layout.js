@@ -5,7 +5,7 @@ import Header from '@/components/Header';
 
 export const metadata = {
   title: 'SealedPaper',
-  description: 'Exam papers stay encrypted until enough officials unlock them together, each with a key file, a rotating code and a live face scan.',
+  description: 'Confidential documents and exam papers stay encrypted until enough officials unlock them together, and every copy traces back to its reader.',
 };
 
 // Pages read the URL and the login state in the browser, so each part streams in

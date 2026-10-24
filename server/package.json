@@ -16,6 +16,7 @@
     "viva:sql": "node --env-file-if-exists=.env scripts/run-sql.js sql/viva_checks.sql"
   },
   "dependencies": {
+    "@pdf-lib/fontkit": "^1.1.1",
     "@tensorflow/tfjs": "4.22.0",
     "@tensorflow/tfjs-backend-wasm": "4.22.0",
     "@vladmandic/face-api": "1.7.15",
@@ -28,6 +29,7 @@
     "multer": "^2.4.0",
     "node-cron": "^4.6.0",
     "otplib": "^12.0.1",
+    "pdf-lib": "^1.17.1",
     "pdfkit": "^0.17.2",
     "pg": "^8.23.1",
     "qrcode": "^1.5.4",

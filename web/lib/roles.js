@@ -1,6 +1,6 @@
 // Where each role lands after logging in, and the navigation it sees.
 export const ROLE_NAMES = {
-  admin: 'Exam controller',
+  admin: 'Controller',
   setter: 'Paper setter',
   custodian: 'Key custodian',
   superintendent: 'Centre superintendent',
@@ -9,7 +9,7 @@ export const ROLE_NAMES = {
 export const roleName = (r) => ROLE_NAMES[r] || r;
 
 export function homeFor(role) {
-  if (role === 'custodian') return '/dashboard';
+  if (role === 'custodian' || role === 'admin') return '/dashboard';
   if (role === 'investigator') return '/leaks';
   return '/papers';
 }
@@ -18,8 +18,8 @@ export function navFor(role) {
   switch (role) {
     case 'admin':
       return [
-        { href: '/papers', label: 'Papers' },
-        { href: '/dashboard', label: 'Vault' },
+        { href: '/dashboard', label: 'Documents' },
+        { href: '/papers', label: 'Exam papers' },
         { href: '/centres', label: 'Centres' },
         { href: '/admin/users', label: 'People' },
         { href: '/leaks', label: 'Leaks' },
@@ -32,7 +32,7 @@ export function navFor(role) {
     case 'superintendent':
       return [{ href: '/papers', label: 'My centres' }];
     case 'investigator':
-      return [{ href: '/leaks', label: 'Leaks' }, { href: '/papers', label: 'Papers' }, { href: '/audit', label: 'Audit log' }];
+      return [{ href: '/leaks', label: 'Leaks' }, { href: '/dashboard', label: 'Documents' }, { href: '/papers', label: 'Exam papers' }, { href: '/audit', label: 'Audit log' }];
     default:
       return [];
   }

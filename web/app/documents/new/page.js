@@ -6,6 +6,7 @@ import { api, formatBytes, formatDateTime } from '@/lib/api';
 import { useRequireAuth } from '@/components/AuthProvider';
 import { roleName } from '@/components/Header';
 import QuorumSeal from '@/components/QuorumSeal';
+import { CATEGORIES } from '@/lib/categories';
 
 function defaultUnlock() {
   const d = new Date(Date.now() + 2 * 3600_000);
@@ -38,6 +39,9 @@ export default function NewDocument() {
   const router = useRouter();
   const [users, setUsers] = useState([]);
   const [title, setTitle] = useState('');
+  const [category, setCategory] = useState('research');
+  const [description, setDescription] = useState('');
+  const [copies, setCopies] = useState(CATEGORIES.research.copies);
   const [file, setFile] = useState(null);
   const [unlockAt, setUnlockAt] = useState(defaultUnlock);
   const [windowMin, setWindowMin] = useState(60);
@@ -76,6 +80,9 @@ export default function NewDocument() {
     setBusy(true);
     const form = new FormData();
     form.append('title', title);
+    form.append('category', category);
+    form.append('description', description);
+    form.append('copiesPerReader', String(copies));
     form.append('file', file);
     form.append('unlockAt', unlockDate.toISOString());
     form.append('submitWindowMinutes', String(windowMin));
@@ -99,7 +106,7 @@ export default function NewDocument() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Seal a new document</h1>
           <p className="mt-1 max-w-prose text-ink-soft">
-            The file is encrypted with a brand-new key the moment you upload it. The key is split among the custodians and
+            Research results, financial results, board decks, judgments, tenders or exam papers. The file is encrypted with a brand-new key the moment you upload it. The key is split among the custodians and
             then deleted, so after this step nobody, including you, can read it alone.
           </p>
         </div>
@@ -107,9 +114,27 @@ export default function NewDocument() {
         <section className="panel space-y-4 p-6">
           <h2 className="text-lg font-bold">Document</h2>
           <label className="block">
+            <span className="label">Kind of document</span>
+            <select className="field" value={category} onChange={(e) => {
+              const c = CATEGORIES[e.target.value];
+              setCategory(e.target.value);
+              setWindowMin(c.window);
+              setCopies(c.copies);
+              setK(c.k);
+            }}>
+              {Object.entries(CATEGORIES).map(([key, c]) => <option key={key} value={key}>{c.label}</option>)}
+            </select>
+            <span className="mt-1 block text-sm text-ink-soft">For example: {CATEGORIES[category].example}.</span>
+          </label>
+          <label className="block">
             <span className="label">Title</span>
             <input className="field" value={title} onChange={(e) => setTitle(e.target.value)} required minLength={3}
-              placeholder="Mid-semester 2026, Data Structures, Paper A" />
+              placeholder="Q3 FY27 results before announcement" />
+          </label>
+          <label className="block">
+            <span className="label">Note for readers (optional)</span>
+            <textarea className="field min-h-16" value={description} onChange={(e) => setDescription(e.target.value)} maxLength={1000}
+              placeholder="Embargoed until the stock-exchange filing at 4 pm." />
           </label>
           <div>
             <label className="block">
@@ -162,9 +187,18 @@ export default function NewDocument() {
         </section>
 
         <section className="panel space-y-4 p-6">
-          <h2 className="text-lg font-bold">Who can download after release</h2>
-          <p className="text-[15px] text-ink-soft">Custodians and exam controllers can always download a released paper. Add centre superintendents here.</p>
+          <h2 className="text-lg font-bold">Readers after release</h2>
+          <p className="text-[15px] text-ink-soft">
+            Custodians and the admin can always read a released document. Every download is a traced copy: PDFs are stamped
+            with the reader’s name and a unique copy code on every page, so a leaked copy names its reader.
+          </p>
           <PeoplePicker people={recipientPool} selected={recipients} onToggle={toggle(recipients, setRecipients)} empty="No other active users." />
+          <label className="block max-w-xs">
+            <span className="label">Copies each reader may download</span>
+            <select className="field" value={copies} onChange={(e) => setCopies(Number(e.target.value))}>
+              {[1, 2, 3, 5, 10].map((v) => <option key={v} value={v}>{v}</option>)}
+            </select>
+          </label>
         </section>
 
         {error && <p role="alert" className="rounded-md bg-wax-soft px-3 py-2.5 text-wax">{error}</p>}
