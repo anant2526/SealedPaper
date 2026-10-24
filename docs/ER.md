@@ -1,8 +1,22 @@
 # SealedPaper ER diagrams
 
-![SealedPaper ER diagram](er-diagram.svg)
+## Overview: all 29 entities
 
-Generated from the live schema by `server/scripts/er-diagram.py` (Graphviz). Crow's foot = many, bar = one, circle = optional. A PNG copy is in `er-diagram.png`.
+![ER overview](er-0-overview.svg)
+
+## 1. Accounts and audit
+![Accounts and audit](er-1-accounts.svg)
+
+## 2. Key vault
+![Key vault](er-2-key-vault.svg)
+
+## 3. Exam papers
+![Exam papers](er-3-exam-papers.svg)
+
+## 4. Printing and leaks
+![Printing and leaks](er-4-printing-leaks.svg)
+
+Generated from the live schema by `server/scripts/er-diagram.py` (Graphviz). Dashed boxes are tables from another module. Crow's foot = many, bar = one, circle = optional. PNG copies sit next to each SVG.
 
 The Mermaid views below show the same model split into four parts.
 
