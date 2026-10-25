@@ -1,5 +1,25 @@
 # SealedPaper ER diagrams
 
+## Conceptual ER diagram (Chen notation)
+
+Rectangle = entity, double rectangle = weak entity, diamond = relationship, double diamond = identifying relationship, oval = attribute, underlined = primary key, dashed oval = partial key, double oval = multivalued, double line = total participation, 1 / N / M = cardinality. The small grey text in each diamond is the table or foreign key that implements it.
+
+![Chen overview](chen-0-overview.svg)
+
+### Accounts, face verification and audit
+![Chen accounts](chen-1-accounts.svg)
+
+### Key vault
+![Chen key vault](chen-2-key-vault.svg)
+
+### Exam papers
+![Chen exam papers](chen-3-exam-papers.svg)
+
+### Printing, reprints and leak tracing
+![Chen printing and leaks](chen-4-printing-leaks.svg)
+
+## Relational schema diagrams (tables, keys, crow's foot)
+
 ## Overview: all 29 entities
 
 ![ER overview](er-0-overview.svg)
