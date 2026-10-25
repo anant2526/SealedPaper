@@ -80,7 +80,7 @@ def render(fname, title, mods, attrs=True, engine='dot'):
     for r in rels:
         for e,_,_ in r[2]:
             if e not in ents: stub.add(e)
-    o=['graph G {', f'graph [layout={engine}, overlap=false, sep="+14", splines=true, outputorder=edgesfirst, pad=0.5, nodesep=0.35, ranksep=0.5, fontname="Helvetica", labelloc=t, fontsize=24, label=<<B>{title}</B><BR/><FONT POINT-SIZE="13">Chen notation · rectangle = entity · double rectangle = weak entity · diamond = relationship · double diamond = identifying relationship<BR/>oval = attribute · <U>underlined</U> = primary key · dashed oval = partial key of a weak entity · double oval = multivalued · double line = total participation · 1 / N / M = cardinality</FONT>>];',
+    o=['graph G {', f'graph [layout={engine}, overlap=false, sep="+10", splines=true, outputorder=edgesfirst, pad=0.5, nodesep=0.35, ranksep=0.5, fontname="Helvetica", labelloc=t, fontsize=24, label=<<B>{title}</B><BR/><FONT POINT-SIZE="13">Chen notation · rectangle = entity · double rectangle = weak entity · diamond = relationship · double diamond = identifying relationship<BR/>oval = attribute · <U>underlined</U> = primary key · dashed oval = partial key of a weak entity · double oval = multivalued · double line = total participation · 1 / N / M = cardinality</FONT>>];',
        'node [fontname="Helvetica"]; edge [color="#5F6368", penwidth=1.3, fontname="Helvetica", fontsize=14, fontcolor="#202124"];']
     for e in sorted(ents|stub):
         m,weak,at=E[e]; c,bg=COL[m]; st= e in stub
@@ -90,25 +90,26 @@ def render(fname, title, mods, attrs=True, engine='dot'):
                 nm,k=a(s); nid=f'{e}.{nm}'
                 t={K:f'<U>{nm}</U>',P:f'<U>{nm}</U>',M:nm,N:nm}[k]
                 o.append(f'"{nid}" [shape=ellipse, style="filled{",dashed" if k==P else ""}", fillcolor="white", color="{c}", peripheries={2 if k==M else 1}, fontsize=12, label=<{t}>, margin="0.05,0.02"];')
-                o.append(f'"{e}" -- "{nid}" [color="{c}", penwidth=1];')
+                o.append(f'"{e}" -- "{nid}" [color="{c}", penwidth=1, len=0.55];')
     for i,(rn,ident,parts,ra,m,tbl) in enumerate(rels):
         c,bg=COL[m]; rid=f'R{i}'
         o.append(f'"{rid}" [shape=diamond, style=filled, fillcolor="{bg}", color="{c}", penwidth=2, peripheries={2 if ident else 1}, fontsize=12, label=<<B>{rn}</B><BR/><FONT POINT-SIZE="9" COLOR="#5F6368">{lab(tbl)}</FONT>>, margin="0.02,0.02"];')
         for e,card,tot in parts:
             col= f'"{c}:invis:{c}"' if tot else f'"{c}"'
-            o.append(f'"{e}" -- "{rid}" [color={col}, penwidth={1.4 if tot else 1.6}, label=<<B>{card}</B>>, len=1.6];')
+            o.append(f'"{e}" -- "{rid}" [color={col}, penwidth={1.4 if tot else 1.6}, label=<<B>{card}</B>>, len=2.6];')
         if attrs:
             for s in ra.split():
                 nid=f'{rid}.{s}'
                 o.append(f'"{nid}" [shape=ellipse, style=filled, fillcolor="white", color="{c}", fontsize=12, label="{s}", margin="0.05,0.02"];')
-                o.append(f'"{rid}" -- "{nid}" [color="{c}", penwidth=1];')
+                o.append(f'"{rid}" -- "{nid}" [color="{c}", penwidth=1, len=0.55];')
     o.append('}')
     open(fname+'.dot','w').write('\n'.join(o))
     for fmt in ['png','svg']:
-        subprocess.run(['dot' if engine=='dot' else engine,f'-T{fmt}']+(['-Gdpi=170'] if fmt=='png' else [])+[fname+'.dot','-o',f'{fname}.{fmt}'],stderr=subprocess.DEVNULL)
+        subprocess.run(['dot' if engine=='dot' else engine,f'-T{fmt}']+(['-Gdpi=220'] if fmt=='png' else [])+[fname+'.dot','-o',f'{fname}.{fmt}'],stderr=subprocess.DEVNULL)
 eng=sys.argv[1] if len(sys.argv)>1 else 'neato'
-render('chen0','SealedPaper ER diagram: all entities and relationships',['acc','vault','exam','leak'],attrs=False,engine=eng)
-render('chen1','ER diagram 1 of 4: Accounts, face verification and audit',['acc'],engine=eng)
-render('chen2','ER diagram 2 of 4: Key vault (any confidential document)',['vault'],engine=eng)
-render('chen3','ER diagram 3 of 4: Exam papers',['exam'],engine=eng)
-render('chen4','ER diagram 4 of 4: Printing, reprints and leak tracing',['leak'],engine=eng)
+#render('chen0','SealedPaper ER diagram: all entities and relationships',['acc','vault','exam','leak'],attrs=False,engine=eng)
+#render('chen1','ER diagram 1 of 4: Accounts, face verification and audit',['acc'],engine=eng)
+#render('chen2','ER diagram 2 of 4: Key vault (any confidential document)',['vault'],engine=eng)
+#render('chen3','ER diagram 3 of 4: Exam papers',['exam'],engine=eng)
+#render('chen4','ER diagram 4 of 4: Printing, reprints and leak tracing',['leak'],engine=eng)
+render('chen_full','SealedPaper: complete ER diagram (Chen notation)',['acc','vault','exam','leak'],attrs=True,engine=eng)

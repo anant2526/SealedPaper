@@ -1,6 +1,12 @@
 # SealedPaper ER diagrams
 
-## Conceptual ER diagram (Chen notation)
+## Complete ER diagram (one page)
+
+![Complete ER diagram](er-complete.svg)
+
+Also as [PDF](er-complete.pdf) (zoomable, printable) and [PNG](er-complete.png).
+
+## Conceptual ER diagram by module (Chen notation)
 
 Rectangle = entity, double rectangle = weak entity, diamond = relationship, double diamond = identifying relationship, oval = attribute, underlined = primary key, dashed oval = partial key, double oval = multivalued, double line = total participation, 1 / N / M = cardinality. The small grey text in each diamond is the table or foreign key that implements it.
 
